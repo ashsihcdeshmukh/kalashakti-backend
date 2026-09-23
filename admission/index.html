@@ -419,6 +419,18 @@ let admissionConfig = {
 
 async function loadAdmissionConfigFromCloud(){
   try {
+    const cmsRes = await fetch('https://kalashakti-backend.onrender.com/api/sync/cms');
+    if (cmsRes.ok) {
+      const cmsJson = await cmsRes.json();
+      if (cmsJson && cmsJson.data && cmsJson.data.admission) {
+        admissionConfig = Object.assign(admissionConfig, cmsJson.data.admission);
+        renderDynamicAdmissionElements();
+        return;
+      }
+    }
+  } catch(e){}
+
+  try {
     const raw = localStorage.getItem('kalashakti-app-content') || localStorage.getItem('creative-edge-app-content');
     if(raw){
       const parsed = JSON.parse(raw);

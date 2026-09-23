@@ -327,10 +327,6 @@
           localStorage.setItem('tn_demo_db_' + table, JSON.stringify(parsed));
         }
       }
-      if (table === 'students' && parsed && parsed.length > 0 && !parsed[0].phone.startsWith('999990')) {
-        localStorage.setItem(key, JSON.stringify(INITIAL_STUDENTS));
-        return JSON.parse(JSON.stringify(INITIAL_STUDENTS));
-      }
       if (table === 'students' && (!parsed || parsed.length === 0)) {
         localStorage.setItem(key, JSON.stringify(INITIAL_STUDENTS));
         return JSON.parse(JSON.stringify(INITIAL_STUDENTS));
@@ -384,14 +380,22 @@
         if (table && json.data) {
           const key = 'ks_demo_db_' + table;
           localStorage.setItem(key, JSON.stringify(json.data));
+          localStorage.setItem('tn_demo_db_' + table, JSON.stringify(json.data));
+          try {
+            window.dispatchEvent(new CustomEvent('kalashakti_synced', { detail: { table: table, data: json.data } }));
+          } catch(e){}
           return json.data;
         } else if (json.tables) {
           for (const [t, d] of Object.entries(json.tables)) {
             if (d && Array.isArray(d) && d.length > 0) {
               const k = 'ks_demo_db_' + t;
               localStorage.setItem(k, JSON.stringify(d));
+              localStorage.setItem('tn_demo_db_' + t, JSON.stringify(d));
             }
           }
+          try {
+            window.dispatchEvent(new CustomEvent('kalashakti_synced', { detail: { tables: json.tables } }));
+          } catch(e){}
           return json.tables;
         }
       }
@@ -419,6 +423,19 @@
               eq: function(field, val) {
                 filters.push(function(r) {
                   return String(r[field] || '') === String(val || '');
+                });
+                return queryObj;
+              },
+              ilike: function(field, val) {
+                var regex = new RegExp(String(val || '').replace(/%/g, '.*'), 'i');
+                filters.push(function(r) {
+                  return regex.test(String(r[field] || ''));
+                });
+                return queryObj;
+              },
+              contains: function(field, val) {
+                filters.push(function(r) {
+                  return String(r[field] || '').toLowerCase().includes(String(val || '').toLowerCase());
                 });
                 return queryObj;
               },

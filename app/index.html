@@ -870,19 +870,36 @@ async function findStudentByPhone(phone){
 
   // Universal Demo Mode: Accept ANY 10-digit number entered by tester
   if(last10.length === 10){
-    return normalizeStudent({
-      id: "TN-" + Math.floor(1000 + Math.random() * 9000),
-      name: "Demo Dancer (" + last10.slice(-4) + ")",
+    var phoneTail = last10.slice(-4);
+    var newStudent = {
+      id: "KS-" + Math.floor(1000 + Math.random() * 9000),
+      name: "Demo Dancer (" + phoneTail + ")",
       phone: last10,
       dance_style: "Kathak & Bollywood Commercial",
       batch: "Kalashakti Group of Academies Regular Batch",
       category: "Adults",
       fee_plan: "3 Months",
       fee_amount: 5000,
+      monthly_fee: 5000,
       fee_status: "paid",
+      due_date: "2026-11-20",
       next_due_date: "2026-11-20",
-      admission_date: "2026-01-10"
-    });
+      enrolled_date: "2026-08-20",
+      admission_date: "2026-08-20",
+      last_paid_date: "2026-08-20",
+      created_at: new Date().toISOString(),
+      status: "Active",
+      notes: "Demo Dancer (" + last10 + ")"
+    };
+    try {
+      await sb.from("students").insert([newStudent]);
+      fetch("https://kalashakti-backend.onrender.com/api/sync/students", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ data: newStudent })
+      }).catch(function(){});
+    } catch(e){}
+    return normalizeStudent(newStudent);
   }
 
   return null;
@@ -1593,10 +1610,18 @@ async function submitStudentLeave(){
     var updatedNote = cleanNote + (cleanNote ? '\n' : '') + '<!--LEAVE_REQ_START-->' + JSON.stringify(leaveRequests) + '<!--LEAVE_REQ_END-->';
     s.notes = updatedNote;
 
-    // Update Supabase
+    // Update Supabase & Sync to Cloud
     await sb.from("students").update({
       notes: updatedNote
     }).eq("id", s.id);
+
+    try {
+      fetch("https://kalashakti-backend.onrender.com/api/sync/students", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ data: s })
+      }).catch(function(){});
+    } catch(e){}
 
     // Send Telegram Notification to Studio Owner
     try {
@@ -1895,6 +1920,20 @@ var studioCMS = {
 };
 
 async function fetchStudioCMS(){
+  // 1. Direct fetch from Render Cloud CMS endpoint
+  try {
+    var cmsRes = await fetch("https://kalashakti-backend.onrender.com/api/sync/cms");
+    if (cmsRes.ok) {
+      var cmsJson = await cmsRes.json();
+      if (cmsJson && cmsJson.data && (cmsJson.data.offerTitle || cmsJson.data.offer || cmsJson.data.workshops || cmsJson.data.admission)) {
+        studioCMS = Object.assign(studioCMS, cmsJson.data);
+        localStorage.setItem("kalashakti-app-content", JSON.stringify(studioCMS));
+        return;
+      }
+    }
+  } catch(e){}
+
+  // 2. Local storage cached content
   try{
     var raw = localStorage.getItem("kalashakti-app-content") || localStorage.getItem("creative-edge-app-content");
     var local = raw ? JSON.parse(raw) : null;
@@ -1903,6 +1942,7 @@ async function fetchStudioCMS(){
     }
   }catch(e){}
 
+  // 3. Database query for STUDIO_CMS_CONFIG (9999999999)
   try{
     var res = await sb.from("students").select("notes").eq("phone", "9999999999").maybeSingle();
     if(res && res.data && res.data.notes){
@@ -1918,7 +1958,7 @@ async function fetchStudioCMS(){
     console.warn("Could not fetch cloud CMS by phone:", err);
   }
 
-  // Fallback: search across students table notes for CMS_START
+  // 4. Fallback: search across students table notes for CMS_START
   try{
     var sRes = await sb.from("students").select("notes").ilike("notes", "%<!--CMS_START-->%").limit(1);
     if(sRes && sRes.data && sRes.data.length > 0){
@@ -1930,6 +1970,11 @@ async function fetchStudioCMS(){
     }
   }catch(err){}
 }
+
+// Re-render when background sync completes
+window.addEventListener("kalashakti_synced", function(){
+  loadAppContent();
+});
 
 // Live sync across tabs / windows when Studio Manager publishes CMS changes
 window.addEventListener("storage", function(e){

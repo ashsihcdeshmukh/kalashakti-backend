@@ -2937,13 +2937,27 @@
       } catch(err){}
 
       let synced = false;
+
+      // 1. Direct Cloud Sync to Render Backend
+      try {
+        const rRes = await fetch('https://kalashakti-backend.onrender.com/api/sync/cms', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ data: studioCMSData })
+        });
+        if(rRes.ok) synced = true;
+      } catch(err){
+        console.warn('Direct Render CMS sync error:', err);
+      }
+
+      // 2. Also save to students table as backup
       const noteContent = '<!--CMS_START-->' + JSON.stringify(studioCMSData) + '<!--CMS_END-->';
 
       try{
         const check = await sb.from('students').select('id').eq('phone', '9999999999').maybeSingle();
         if(check && check.data && check.data.id){
           const upd = await sb.from('students').update({ notes: noteContent }).eq('id', check.data.id);
-          synced = !upd.error;
+          synced = synced || !upd.error;
         } else {
           const ins = await sb.from('students').insert([{
             name: 'STUDIO_CMS_CONFIG',
@@ -2952,7 +2966,7 @@
             fee_status: 'Paid',
             notes: noteContent
           }]);
-          synced = !ins.error;
+          synced = synced || !ins.error;
         }
       }catch(e){
         console.warn('CMS sync error:', e);
