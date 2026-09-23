@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Kalashakti Cross-Domain Sync Bridge</title>
+</head>
+<body>
+<script>
+  // Cross-domain relay for Kalashakti web apps
+  const ALLOWED_ORIGIN_REGEX = /kalashakti-(portal|manager|admission|demo)\.web\.app|localhost|127\.0\.0\.1/i;
+
+  window.addEventListener('message', function(e) {
+    if (!e.origin || !ALLOWED_ORIGIN_REGEX.test(e.origin)) return;
+    const msg = e.data;
+    if (!msg || typeof msg !== 'object') return;
+
+    if (msg.action === 'GET_CMS') {
+      const raw = localStorage.getItem('kalashakti-app-content') || localStorage.getItem('creative-edge-app-content');
+      let data = null;
+      try { data = raw ? JSON.parse(raw) : null; } catch(err){}
+      e.source.postMessage({ action: 'CMS_DATA', data: data }, e.origin);
+    } else if (msg.action === 'SET_CMS') {
+      if (msg.data) {
+        localStorage.setItem('kalashakti-app-content', JSON.stringify(msg.data));
+        localStorage.setItem('creative-edge-app-content', JSON.stringify(msg.data));
+      }
+      try {
+        if (typeof BroadcastChannel !== 'undefined') {
+          const bc = new BroadcastChannel('kalashakti_cms_sync');
+          bc.postMessage({ type: 'CMS_UPDATED', data: msg.data });
+        }
+      } catch(err){}
+      if (e.source && e.source.postMessage) {
+        e.source.postMessage({ action: 'CMS_SAVED', success: true }, e.origin);
+      }
+    } else if (msg.action === 'GET_TABLE') {
+      const table = msg.table;
+      const raw = localStorage.getItem('ks_demo_db_' + table) || localStorage.getItem('tn_demo_db_' + table);
+      let data = null;
+      try { data = raw ? JSON.parse(raw) : null; } catch(err){}
+      e.source.postMessage({ action: 'TABLE_DATA', table: table, data: data }, e.origin);
+    } else if (msg.action === 'SET_TABLE') {
+      const table = msg.table;
+      if (table && msg.data) {
+        localStorage.setItem('ks_demo_db_' + table, JSON.stringify(msg.data));
+        localStorage.setItem('tn_demo_db_' + table, JSON.stringify(msg.data));
+        try {
+          if (typeof BroadcastChannel !== 'undefined') {
+            const bc = new BroadcastChannel('kalashakti_db_sync');
+            bc.postMessage({ table: table, timestamp: Date.now() });
+          }
+        } catch(err){}
+      }
+    }
+  });
+</script>
+</body>
+</html>

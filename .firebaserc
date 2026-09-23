@@ -1,0 +1,23 @@
+{
+  "projects": {
+    "default": "creative-edge-studio-app"
+  },
+  "targets": {
+    "creative-edge-studio-app": {
+      "hosting": {
+        "kalashakti-demo": [
+          "kalashakti-demo"
+        ],
+        "kalashakti-admission": [
+          "kalashakti-admission"
+        ],
+        "kalashakti-portal": [
+          "kalashakti-portal"
+        ],
+        "kalashakti-manager": [
+          "kalashakti-manager"
+        ]
+      }
+    }
+  }
+}

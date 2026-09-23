@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kalashakti Group of Academies — Demo Suite Showcase</title>
+<meta name="theme-color" content="#851e28">
+<link rel="icon" href="shared/icon.svg" type="image/svg+xml">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800&family=DM+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="shared/kalashakti-theme.css">
+<!-- Isolated Demo Database & Real-Time Sync -->
+<script src="shared/kalashakti-db.js"></script>
+<style>
+  :root{
+    --bg:#0e080a;
+    --surface:#180e11;
+    --surface-2:#24151a;
+    --accent:#d4a373;
+    --gold:#eab308;
+    --gold-glow:rgba(212,163,115,.25);
+    --primary:#851e28;
+    --border:#3a2027;
+    --border-light:#542e39;
+    --text:#f8fafc;
+    --muted:#a38e94;
+    --success:#10b981;
+    --info:#0ea5e9;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh;background-image:radial-gradient(ellipse at 50% 0%,rgba(133,30,40,.25) 0%,transparent 60%);}
+
+  .container{max-width:960px;margin:0 auto;padding:36px 20px 80px;}
+  
+  /* HEADER */
+  .hero{text-align:center;margin-bottom:36px;}
+  .logo-emblem{width:84px;height:84px;border-radius:50%;border:2px solid var(--accent);box-shadow:0 0 30px var(--gold-glow);margin-bottom:16px;}
+  .badge-tag{display:inline-flex;align-items:center;gap:6px;background:rgba(212,163,115,.12);border:1px solid var(--accent);color:var(--gold);padding:4px 14px;border-radius:999px;font-size:12px;font-weight:700;margin-bottom:12px;letter-spacing:1px;}
+  .hero h1{font-family:'Cinzel',serif;font-size:36px;font-weight:800;color:#fff;line-height:1.2;}
+  .hero h1 span{color:var(--gold);}
+  .hero-hindi{font-family:'Cinzel',serif;font-size:22px;color:var(--accent);margin-top:6px;font-weight:700;}
+  .hero-sub{color:var(--muted);font-size:14.5px;max-width:620px;margin:12px auto 0;line-height:1.6;}
+  .hero-contact{display:inline-flex;gap:18px;margin-top:14px;font-size:13px;color:var(--gold);font-weight:600;}
+
+  /* 3 CORE APPS GRID */
+  .apps-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-bottom:40px;}
+  .app-card{background:var(--surface);border:1.5px solid var(--border);border-radius:22px;padding:26px 22px;display:flex;flex-direction:column;position:relative;overflow:hidden;transition:all .25s ease;box-shadow:0 15px 40px rgba(0,0,0,.4);}
+  .app-card:hover{transform:translateY(-6px);border-color:var(--accent);box-shadow:0 20px 50px rgba(0,0,0,.6),0 0 25px var(--gold-glow);}
+  .card-icon{width:54px;height:54px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:26px;margin-bottom:16px;background:var(--surface-2);border:1px solid var(--border);}
+  .card-num{position:absolute;top:18px;right:20px;font-family:'Cinzel',serif;font-size:12px;font-weight:800;color:var(--muted);opacity:.6;}
+  .card-title{font-family:'Cinzel',serif;font-size:18px;font-weight:800;color:#fff;margin-bottom:6px;}
+  .card-tagline{font-size:12px;color:var(--gold);font-weight:700;margin-bottom:12px;}
+  .card-desc{font-size:13px;color:var(--muted);line-height:1.55;margin-bottom:20px;flex:1;}
+  
+  .card-features{list-style:none;margin-bottom:24px;display:flex;flex-direction:column;gap:8px;}
+  .card-features li{font-size:12px;color:#cbd5e1;display:flex;align-items:center;gap:8px;}
+  .card-features li span{color:var(--success);font-weight:800;}
+
+  .btn-launch{display:block;text-align:center;padding:12px;border-radius:12px;text-decoration:none;font-size:13.5px;font-weight:800;font-family:'DM Sans',sans-serif;transition:all .15s;}
+  .btn-primary{background:linear-gradient(135deg,var(--accent),#eab308);color:#0b0607;box-shadow:0 4px 16px var(--gold-glow);}
+  .btn-primary:hover{opacity:.95;}
+
+  /* DEMO HIGHLIGHTS BANNER */
+  .rules-banner{background:var(--surface);border:1.5px solid var(--border);border-radius:20px;padding:24px;margin-bottom:40px;}
+  .rules-head{display:flex;align-items:center;gap:10px;margin-bottom:16px;}
+  .rules-title{font-family:'Cinzel',serif;font-size:17px;font-weight:800;color:#fff;}
+  .rules-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;}
+  .rule-box{background:var(--surface-2);border:1px solid var(--border);border-radius:14px;padding:16px;}
+  .rule-h{font-size:13px;font-weight:700;color:var(--gold);margin-bottom:4px;}
+  .rule-p{font-size:12px;color:var(--muted);line-height:1.45;}
+
+  /* SAMPLE STUDENTS DIRECTORY */
+  .students-section{background:var(--surface);border:1.5px solid var(--border);border-radius:20px;padding:24px;}
+  .section-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:10px;}
+  .section-title{font-family:'Cinzel',serif;font-size:18px;font-weight:800;color:#fff;}
+  .students-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;}
+  .student-pill-card{background:var(--surface-2);border:1px solid var(--border);border-radius:14px;padding:14px;display:flex;justify-content:space-between;align-items:center;transition:border-color .15s;}
+  .student-pill-card:hover{border-color:var(--accent);}
+  .sp-name{font-size:14px;font-weight:700;color:#fff;}
+  .sp-meta{font-size:11.5px;color:var(--muted);margin-top:2px;}
+  .sp-phone{font-size:12px;color:var(--gold);font-weight:600;font-family:monospace;}
+  .sp-btn{background:rgba(212,163,115,.15);border:1px solid var(--accent);color:var(--gold);padding:6px 12px;border-radius:8px;font-size:11.5px;font-weight:700;text-decoration:none;white-space:nowrap;}
+  .sp-btn:hover{background:var(--accent);color:#0b0607;}
+
+  @media(max-width:840px){
+    .apps-grid{grid-template-columns:1fr;}
+    .rules-grid{grid-template-columns:1fr 1fr;}
+    .students-grid{grid-template-columns:1fr;}
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <!-- HEADER -->
+  <header class="hero">
+    <img src="shared/icon.svg" class="logo-emblem" alt="Kalashakti Emblem">
+    <div><span class="badge-tag">OFFICIAL DEMO SUITE 2026</span></div>
+    <h1>Kalashakti Group of Academies</h1>
+    <div class="hero-hindi">कला शक्ति — The Power of 'Art'</div>
+    <p class="hero-sub">
+      Customized 1:1 demo architecture for Dance, Music, Fitness &amp; Fine Arts studio management in Bhilai, Chhattisgarh. Zero production leaks, isolated demo sandbox, and live multi-screen sync.
+    </p>
+    <div class="hero-contact">
+      <span>📍 Sector 4, Civic Center, Bhilai (C.G.)</span>
+      <span>📞 7879188583</span>
+      <span>📞 7898585955</span>
+    </div>
+  </header>
+
+  <!-- 3 CORE APPLICATIONS -->
+  <div class="apps-grid">
+    
+    <!-- APP 1: ADMISSION FORM -->
+    <div class="app-card">
+      <div class="card-num">01 / PUBLIC</div>
+      <div class="card-icon" style="border-color:var(--accent)">📝</div>
+      <div class="card-title">Online Admission</div>
+      <div class="card-tagline">Multi-Step Course Enrollment</div>
+      <div class="card-desc">
+        Modern multi-step admission workflow with student info, course selection, batch timings, dynamic pricing (1M/3M/6M/12M), promo coupon engine, and instant digital receipts.
+      </div>
+      <ul class="card-features">
+        <li><span>✓</span> Instant Dynamic Pricing &amp; Savings</li>
+        <li><span>✓</span> Simulated Online Razorpay / UPI Gateway</li>
+        <li><span>✓</span> Studio Cash OTP Verification</li>
+        <li><span>✓</span> Auto-Sync to Studio Register</li>
+      </ul>
+      <a href="./admission/" class="btn-launch btn-primary" target="_blank">Launch Admission Form ↗</a>
+    </div>
+
+    <!-- APP 2: STUDENT PORTAL -->
+    <div class="app-card">
+      <div class="card-num">02 / PWA</div>
+      <div class="card-icon" style="border-color:var(--gold)">📱</div>
+      <div class="card-title">Student Portal</div>
+      <div class="card-tagline">Personalized PWA Companion</div>
+      <div class="card-desc">
+        Comprehensive student companion with active class countdown, live attendance percentage, fee renewal modal, leave engine with auto-due extension, and digital ID card.
+      </div>
+      <ul class="card-features">
+        <li><span>✓</span> Universal Demo OTP (000000)</li>
+        <li><span>✓</span> Class Schedule Countdown Timer</li>
+        <li><span>✓</span> Leave Auto-Due Extension Engine</li>
+        <li><span>✓</span> Fee Renewal with Clear Cancel / Back</li>
+      </ul>
+      <a href="./app/" class="btn-launch btn-primary" target="_blank">Launch Student App ↗</a>
+    </div>
+
+    <!-- APP 3: STUDIO MANAGER -->
+    <div class="app-card">
+      <div class="card-num">03 / ADMIN</div>
+      <div class="card-icon" style="border-color:#38bdf8">🏢</div>
+      <div class="card-title">Studio Manager</div>
+      <div class="card-tagline">Full 12-Tab Command Center</div>
+      <div class="card-desc">
+        Executive studio administration with real-time KPI analytics, multi-day attendance backfill, leave request approvals, staff payroll, rent/expense tracker, and live App Content CMS.
+      </div>
+      <ul class="card-features">
+        <li><span>✓</span> Full 12 Operational Tabs</li>
+        <li><span>✓</span> Multi-Day Attendance Marker</li>
+        <li><span>✓</span> 1-Click Leave Approvals</li>
+        <li><span>✓</span> Live App Content CMS Sync</li>
+      </ul>
+      <a href="./manager/" class="btn-launch btn-primary" target="_blank">Launch Studio Manager ↗</a>
+    </div>
+
+  </div>
+
+  <!-- 4 CRITICAL DEMO RULES & ENGINE BANNER -->
+  <div class="rules-banner">
+    <div class="rules-head">
+      <span style="font-size:24px">⚡</span>
+      <div class="rules-title">Active Demo Engine Features &amp; Controls</div>
+    </div>
+    <div class="rules-grid">
+      <div class="rule-box">
+        <div class="rule-h">🔑 Universal Demo OTP</div>
+        <div class="rule-p">Entering <b>000000</b> (or any 6 digits) instantly succeeds in Student Portal &amp; Cash verification without error.</div>
+      </div>
+      <div class="rule-box">
+        <div class="rule-h">✕ Smooth Modal Controls</div>
+        <div class="rule-p">All payment, renewal, leave, and admission modals have clear ✕ Cancel and ← Back buttons with zero page reload.</div>
+      </div>
+      <div class="rule-box">
+        <div class="rule-h">💳 Instant Online Pay</div>
+        <div class="rule-p">Simulated Razorpay/UPI gateway authorizes in 1.2s, issues a transaction receipt, and auto-extends due dates.</div>
+      </div>
+      <div class="rule-box">
+        <div class="rule-h">🔄 Live CMS Sync Bus</div>
+        <div class="rule-p">Publishing changes in Studio Manager under App Content broadcasts in real-time to Student App and Admission Form.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PRE-LOADED DEMO STUDENTS DIRECTORY -->
+  <div class="students-section">
+    <div class="section-head">
+      <div>
+        <div class="section-title">👥 10 Pre-Populated Sample Students</div>
+        <div style="font-size:12.5px;color:var(--muted)">Fictional numbers (9999900001 – 9999900010) across Dance, Music, Fitness &amp; Art</div>
+      </div>
+      <button onclick="resetSandbox()" style="background:none;border:none;color:#fca5a5;font-weight:700;font-size:12px;cursor:pointer">
+        🔄 Reset to Default State
+      </button>
+    </div>
+
+    <div class="students-grid" id="demoStudentsList">
+      <!-- Populated via script -->
+    </div>
+  </div>
+
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    renderDemoStudents();
+  });
+
+  function renderDemoStudents() {
+    const students = KalashaktiDB.getStudents();
+    const cont = document.getElementById('demoStudentsList');
+    cont.innerHTML = students.map(s => `
+      <div class="student-pill-card">
+        <div>
+          <div class="sp-name">${s.name}</div>
+          <div class="sp-meta">${s.dance_style}</div>
+          <div class="sp-phone">📱 ${s.phone} · PIN: 000000</div>
+        </div>
+        <a href="./app/?phone=${s.phone}" class="sp-btn" target="_blank" onclick="loginDirect('${s.phone}')">
+          Login App →
+        </a>
+      </div>
+    `).join('');
+  }
+
+  function loginDirect(phone) {
+    const stu = KalashaktiDB.getStudentByPhone(phone);
+    if (stu) {
+      localStorage.setItem('kala_logged_student_id', stu.id);
+    }
+  }
+
+  function resetSandbox() {
+    if (confirm('Reset Kalashakti Sandbox to pristine sample state?')) {
+      KalashaktiDB.resetDemoData();
+      renderDemoStudents();
+      alert('✨ Sandbox reset to 10 sample students!');
+    }
+  }
+</script>
+
+</body>
+</html>

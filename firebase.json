@@ -1,0 +1,123 @@
+{
+  "hosting": [
+    {
+      "target": "kalashakti-demo",
+      "public": "public",
+      "ignore": [
+        "firebase.json",
+        ".firebaserc",
+        "**/.*",
+        "pitch/**",
+        "**/node_modules/**"
+      ],
+      "headers": [
+        {
+          "source": "**",
+          "headers": [
+            {
+              "key": "Cache-Control",
+              "value": "no-cache, no-store, must-revalidate"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "target": "kalashakti-admission",
+      "public": "admission",
+      "ignore": [
+        "firebase.json",
+        "**/.*"
+      ],
+      "rewrites": [
+        {
+          "source": "**",
+          "destination": "/index.html"
+        }
+      ],
+      "headers": [
+        {
+          "source": "**",
+          "headers": [
+            {
+              "key": "Cache-Control",
+              "value": "no-cache, no-store, must-revalidate"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "target": "kalashakti-portal",
+      "public": "app",
+      "ignore": [
+        "firebase.json",
+        "**/.*"
+      ],
+      "redirects": [
+        {
+          "source": "/manager",
+          "destination": "https://kalashakti-manager.web.app",
+          "type": 301
+        },
+        {
+          "source": "/manager/**",
+          "destination": "https://kalashakti-manager.web.app",
+          "type": 301
+        },
+        {
+          "source": "/admission",
+          "destination": "https://kalashakti-admission.web.app",
+          "type": 301
+        },
+        {
+          "source": "/admission/**",
+          "destination": "https://kalashakti-admission.web.app",
+          "type": 301
+        }
+      ],
+      "rewrites": [
+        {
+          "source": "**",
+          "destination": "/index.html"
+        }
+      ],
+      "headers": [
+        {
+          "source": "**",
+          "headers": [
+            {
+              "key": "Cache-Control",
+              "value": "no-cache, no-store, must-revalidate"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "target": "kalashakti-manager",
+      "public": "manager",
+      "ignore": [
+        "firebase.json",
+        "**/.*"
+      ],
+      "rewrites": [
+        {
+          "source": "**",
+          "destination": "/index.html"
+        }
+      ],
+      "headers": [
+        {
+          "source": "**",
+          "headers": [
+            {
+              "key": "Cache-Control",
+              "value": "no-cache, no-store, must-revalidate"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,29 @@
+{
+  "name": "kalashakti",
+  "version": "1.0.0",
+  "description": "Kalashakti Group of Academies (कला शक्ति) - Student Portal, Admission Form & Studio Manager",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js"
+  },
+  "keywords": [
+    "dance-studio",
+    "kalashakti",
+    "student-portal",
+    "admission-form",
+    "studio-manager"
+  ],
+  "author": "Kalashakti Group of Academies",
+  "license": "ISC",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "node-cron": "^4.6.0",
+    "node-fetch": "^2.7.0"
+  },
+  "devDependencies": {
+    "vercel": "^59.23.2"
+  }
+}

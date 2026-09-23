@@ -1,0 +1,555 @@
+/**
+ * Kalashakti Group of Academies Isolated Client-Side Database & Sandbox
+ * 
+ * 100% Isolated: Completely intercepts and replaces external Supabase connections
+ * with zero external API dependencies. All test phone numbers use the fictional series 9999900001 - 9999900010.
+ */
+
+(function() {
+  // Purge any legacy keys from localStorage
+  try {
+    for (let i = localStorage.length - 1; i >= 0; i--) {
+      const k = localStorage.key(i);
+      if (k && (k.startsWith('creative-edge-') || k.includes('ce_students') || k.includes('flzreearlfdultvspdmx') || k === 'ce_manager_students')) {
+        localStorage.removeItem(k);
+      }
+    }
+  } catch (e) {}
+
+  const TODAY = new Date().toISOString().split('T')[0];
+
+  const INITIAL_STUDENTS = [
+    {
+      id: "KS-2026-001",
+      name: "Aarav Sharma",
+      phone: "9999900001",
+      category: "Adults",
+      batch: "Kathak Classical (Weekend 10:00 AM - 11:30 AM)",
+      dance_style: "Kathak",
+      fee_plan: "3 Months",
+      fee_amount: 6000,
+      monthly_fee: 6000,
+      fee_status: "paid",
+      due_date: "2026-10-15",
+      next_due_date: "2026-10-15",
+      enrolled_date: "2026-07-15",
+      admission_date: "2026-07-15",
+      last_paid_date: "2026-07-15",
+      created_at: "2026-07-15T10:00:00.000Z",
+      status: "Active",
+      payment_id: "PAY-KS-001",
+      payment_method: "online",
+      notes: "Style: Kathak; Address: Station Road, Bhilai, Chhattisgarh\n<!--PAY_START-->[{\"payment_id\":\"PAY-KS-001\",\"amount\":6000,\"type\":\"Admission Package\",\"title\":\"Kathak Classical (3 Months)\",\"date\":\"2026-07-15\",\"mode\":\"Razorpay Online\",\"duration_months\":3}]<!--PAY_END-->"
+    },
+    {
+      id: "KS-2026-002",
+      name: "Pooja Patel",
+      phone: "9999900002",
+      category: "Adults",
+      batch: "Bollywood Commercial (MWF 6:00 PM - 7:00 PM)",
+      dance_style: "Bollywood",
+      fee_plan: "1 Month",
+      fee_amount: 1800,
+      monthly_fee: 1800,
+      fee_status: "paid",
+      due_date: "2026-09-25",
+      next_due_date: "2026-09-25",
+      enrolled_date: "2026-08-25",
+      admission_date: "2026-08-25",
+      last_paid_date: "2026-08-25",
+      created_at: "2026-08-25T11:00:00.000Z",
+      status: "Active",
+      payment_id: "PAY-KS-002",
+      payment_method: "cash",
+      notes: "Style: Bollywood; Address: Rhythm Heights, Studio District\n<!--PAY_START-->[{\"payment_id\":\"PAY-KS-002\",\"amount\":1800,\"type\":\"Admission Package\",\"title\":\"Bollywood Commercial (1 Month)\",\"date\":\"2026-08-25\",\"mode\":\"Cash\",\"duration_months\":1}]<!--PAY_END-->"
+    },
+    {
+      id: "KS-2026-003",
+      name: "Rohan Mehta",
+      phone: "9999900003",
+      category: "Adults",
+      batch: "Urban Hip-Hop & Popping (TTS 7:00 PM - 8:30 PM)",
+      dance_style: "Hip-Hop",
+      fee_plan: "3 Months",
+      fee_amount: 5500,
+      monthly_fee: 5500,
+      fee_status: "paid",
+      due_date: "2026-10-01",
+      next_due_date: "2026-10-01",
+      enrolled_date: "2026-06-01",
+      admission_date: "2026-06-01",
+      last_paid_date: "2026-06-01",
+      created_at: "2026-06-01T09:00:00.000Z",
+      status: "Active",
+      payment_id: "PAY-KS-003",
+      payment_method: "online",
+      notes: "Style: Hip-Hop; Address: Bandra West, Bhilai, Chhattisgarh\n<!--PAY_START-->[{\"payment_id\":\"PAY-KS-003\",\"amount\":5500,\"type\":\"Admission Package\",\"title\":\"Urban Hip-Hop (3 Months)\",\"date\":\"2026-06-01\",\"mode\":\"Razorpay Online\",\"duration_months\":3}]<!--PAY_END-->\n<!--LEAVE_REQ_START-->[{\"id\":\"REQ-2026-001\",\"start\":\"2026-09-24\",\"end\":\"2026-09-28\",\"days\":5,\"reason\":\"College Semester Examinations\",\"status\":\"pending\",\"created_at\":\"2026-09-21\"}]<!--LEAVE_REQ_END-->"
+    },
+    {
+      id: "KS-2026-004",
+      name: "Ananya Verma",
+      phone: "9999900004",
+      category: "Adults",
+      batch: "Contemporary & Movement (Sat/Sun 4:00 PM - 5:30 PM)",
+      dance_style: "Contemporary",
+      fee_plan: "3 Months",
+      fee_amount: 6500,
+      monthly_fee: 6500,
+      fee_status: "paid",
+      due_date: "2026-11-10",
+      next_due_date: "2026-11-10",
+      enrolled_date: "2026-05-10",
+      admission_date: "2026-05-10",
+      last_paid_date: "2026-08-10",
+      created_at: "2026-05-10T09:00:00.000Z",
+      status: "Active",
+      payment_id: "PAY-KS-004",
+      payment_method: "online",
+      notes: "Style: Contemporary; Address: Juhu, Bhilai, Chhattisgarh\n<!--PAY_START-->[{\"payment_id\":\"PAY-KS-004\",\"amount\":6500,\"type\":\"Package Renewal\",\"title\":\"Contemporary Movement (3 Months)\",\"date\":\"2026-08-10\",\"mode\":\"Razorpay Online\",\"duration_months\":3}]<!--PAY_END-->"
+    },
+    {
+      id: "KS-2026-005",
+      name: "Kabir Joshi",
+      phone: "9999900005",
+      category: "Adults",
+      batch: "Urban Hip-Hop & Popping (TTS 7:00 PM - 8:30 PM)",
+      dance_style: "Hip-Hop",
+      fee_plan: "6 Months",
+      fee_amount: 10500,
+      monthly_fee: 10500,
+      fee_status: "paid",
+      due_date: "2026-10-10",
+      next_due_date: "2026-10-10",
+      enrolled_date: "2026-04-10",
+      admission_date: "2026-04-10",
+      last_paid_date: "2026-04-10",
+      created_at: "2026-04-10T14:00:00.000Z",
+      status: "Active",
+      payment_id: "PAY-KS-005",
+      payment_method: "cash",
+      notes: "Style: Hip-Hop; Address: Andheri West\n<!--PAY_START-->[{\"payment_id\":\"PAY-KS-005\",\"amount\":10500,\"type\":\"Admission Package\",\"title\":\"Hip-Hop 6-Month Intensive\",\"date\":\"2026-04-10\",\"mode\":\"Cash\",\"duration_months\":6}]<!--PAY_END-->"
+    },
+    {
+      id: "KS-2026-006",
+      name: "Priya Singh",
+      phone: "9999900006",
+      category: "Adults",
+      batch: "Kathak Classical (Weekend 10:00 AM - 11:30 AM)",
+      dance_style: "Kathak",
+      fee_plan: "1 Month",
+      fee_amount: 2200,
+      monthly_fee: 2200,
+      fee_status: "paid",
+      due_date: "2026-09-20",
+      next_due_date: "2026-09-20",
+      enrolled_date: "2026-08-20",
+      admission_date: "2026-08-20",
+      last_paid_date: "2026-08-20",
+      created_at: "2026-08-20T10:00:00.000Z",
+      status: "Active",
+      payment_id: "PAY-KS-006",
+      payment_method: "online",
+      notes: "Style: Kathak; Address: Dadar, Bhilai, Chhattisgarh\n<!--PAY_START-->[{\"payment_id\":\"PAY-KS-006\",\"amount\":2200,\"type\":\"Admission Package\",\"title\":\"Kathak 1-Month\",\"date\":\"2026-08-20\",\"mode\":\"UPI Online\",\"duration_months\":1}]<!--PAY_END-->"
+    },
+    {
+      id: "KS-2026-007",
+      name: "Vikram Malhotra",
+      phone: "9999900007",
+      category: "Adults",
+      batch: "Morning Zumba & Dance Fitness (Mon-Fri 7:00 AM - 8:00 AM)",
+      dance_style: "Zumba",
+      fee_plan: "1 Month",
+      fee_amount: 1600,
+      monthly_fee: 1600,
+      fee_status: "paid",
+      due_date: "2026-10-01",
+      next_due_date: "2026-10-01",
+      enrolled_date: "2026-09-01",
+      admission_date: "2026-09-01",
+      last_paid_date: "2026-09-01",
+      created_at: "2026-09-01T07:30:00.000Z",
+      status: "Active",
+      payment_id: "PAY-KS-007",
+      payment_method: "online",
+      notes: "Style: Zumba; Address: Lower Parel, Bhilai, Chhattisgarh\n<!--PAY_START-->[{\"payment_id\":\"PAY-KS-007\",\"amount\":1600,\"type\":\"Admission Package\",\"title\":\"Zumba Morning Batch\",\"date\":\"2026-09-01\",\"mode\":\"Razorpay Online\",\"duration_months\":1}]<!--PAY_END-->"
+    },
+    {
+      id: "KS-2026-008",
+      name: "Neha Kulkarni",
+      phone: "9999900008",
+      category: "Adults",
+      batch: "Bollywood Commercial (MWF 6:00 PM - 7:00 PM)",
+      dance_style: "Bollywood",
+      fee_plan: "3 Months",
+      fee_amount: 4800,
+      monthly_fee: 4800,
+      fee_status: "paid",
+      due_date: "2026-10-01",
+      next_due_date: "2026-10-01",
+      enrolled_date: "2026-07-01",
+      admission_date: "2026-07-01",
+      last_paid_date: "2026-07-01",
+      created_at: "2026-07-01T17:00:00.000Z",
+      status: "Active",
+      payment_id: "PAY-KS-008",
+      payment_method: "online",
+      notes: "Style: Bollywood; Address: Chembur, Bhilai, Chhattisgarh\n<!--PAY_START-->[{\"payment_id\":\"PAY-KS-008\",\"amount\":4800,\"type\":\"Admission Package\",\"title\":\"Bollywood 3 Months Package\",\"date\":\"2026-07-01\",\"mode\":\"Razorpay Online\",\"duration_months\":3}]<!--PAY_END-->"
+    },
+    {
+      id: "KS-2026-009",
+      name: "Siddharth Rao",
+      phone: "9999900009",
+      category: "Kids",
+      parent_name: "Manish Rao",
+      batch: "Kids Dance Foundations (MWF 5:00 PM - 6:00 PM)",
+      dance_style: "Kids Dance",
+      fee_plan: "3 Months",
+      fee_amount: 3000,
+      monthly_fee: 3000,
+      fee_status: "paid",
+      due_date: "2026-11-01",
+      next_due_date: "2026-11-01",
+      enrolled_date: "2026-08-01",
+      admission_date: "2026-08-01",
+      last_paid_date: "2026-08-01",
+      created_at: "2026-08-01T16:00:00.000Z",
+      status: "Active",
+      payment_id: "PAY-KS-009",
+      payment_method: "cash",
+      notes: "Style: Kids Dance; Parent: Manish Rao; Address: Vile Parle\n<!--PAY_START-->[{\"payment_id\":\"PAY-KS-009\",\"amount\":3000,\"type\":\"Admission Package\",\"title\":\"Kids Dance 3 Months\",\"date\":\"2026-08-01\",\"mode\":\"Cash\",\"duration_months\":3}]<!--PAY_END-->"
+    },
+    {
+      id: "KS-2026-010",
+      name: "Tanvi Deshmukh",
+      phone: "9999900010",
+      category: "Adults",
+      batch: "Contemporary & Movement (Sat/Sun 4:00 PM - 5:30 PM)",
+      dance_style: "Contemporary",
+      fee_plan: "6 Months",
+      fee_amount: 10500,
+      monthly_fee: 10500,
+      fee_status: "paid",
+      due_date: "2026-09-26",
+      next_due_date: "2026-09-26",
+      enrolled_date: "2026-03-26",
+      admission_date: "2026-03-26",
+      last_paid_date: "2026-03-26",
+      created_at: "2026-03-26T12:00:00.000Z",
+      status: "Active",
+      payment_id: "PAY-KS-010",
+      payment_method: "online",
+      notes: "Style: Contemporary; Address: Thane West\n<!--PAY_START-->[{\"payment_id\":\"PAY-KS-010\",\"amount\":10500,\"type\":\"Admission Package\",\"title\":\"Contemporary 6 Months\",\"date\":\"2026-03-26\",\"mode\":\"Razorpay Online\",\"duration_months\":6}]<!--PAY_END-->"
+    }
+  ];
+
+  const INITIAL_PAYMENTS = [
+    { id: "PAY-KS-001", student_id: "KS-2026-001", student_name: "Aarav Sharma", amount: 6000, payment_date: "2026-07-15", mode: "Razorpay Online", type: "Admission Package", title: "Kathak Classical (3 Months)" },
+    { id: "PAY-KS-002", student_id: "KS-2026-002", student_name: "Pooja Patel", amount: 1800, payment_date: "2026-08-25", mode: "Cash", type: "Admission Package", title: "Bollywood Commercial (1 Month)" },
+    { id: "PAY-KS-003", student_id: "KS-2026-003", student_name: "Rohan Mehta", amount: 5500, payment_date: "2026-06-01", mode: "Razorpay Online", type: "Admission Package", title: "Urban Hip-Hop (3 Months)" },
+    { id: "PAY-KS-004", student_id: "KS-2026-004", student_name: "Ananya Verma", amount: 6500, payment_date: "2026-08-10", mode: "Razorpay Online", type: "Package Renewal", title: "Contemporary Movement (3 Months)" },
+    { id: "PAY-KS-005", student_id: "KS-2026-005", student_name: "Kabir Joshi", amount: 10500, payment_date: "2026-04-10", mode: "Cash", type: "Admission Package", title: "Hip-Hop 6-Month Intensive" },
+    { id: "PAY-KS-006", student_id: "KS-2026-006", student_name: "Priya Singh", amount: 2200, payment_date: "2026-08-20", mode: "UPI Online", type: "Admission Package", title: "Kathak 1-Month" },
+    { id: "PAY-KS-007", student_id: "KS-2026-007", student_name: "Vikram Malhotra", amount: 1600, payment_date: "2026-09-01", mode: "Razorpay Online", type: "Admission Package", title: "Zumba Morning Batch" },
+    { id: "PAY-KS-008", student_id: "KS-2026-008", student_name: "Neha Kulkarni", amount: 4800, payment_date: "2026-07-01", mode: "Razorpay Online", type: "Admission Package", title: "Bollywood 3 Months Package" },
+    { id: "PAY-KS-009", student_id: "KS-2026-009", student_name: "Siddharth Rao", amount: 3000, payment_date: "2026-08-01", mode: "Cash", type: "Admission Package", title: "Kids Dance 3 Months" },
+    { id: "PAY-KS-010", student_id: "KS-2026-010", student_name: "Tanvi Deshmukh", amount: 10500, payment_date: "2026-03-26", mode: "Razorpay Online", type: "Admission Package", title: "Contemporary 6 Months" }
+  ];
+
+  const INITIAL_ATTENDANCE = [
+    { id: "ATT-101", student_id: "KS-2026-001", student_name: "Aarav Sharma", phone: "9999900001", batch: "Kathak Classical (Weekend 10:00 AM - 11:30 AM)", attendance_date: TODAY, status: "Present", note: "" },
+    { id: "ATT-102", student_id: "KS-2026-002", student_name: "Pooja Patel", phone: "9999900002", batch: "Bollywood Commercial (MWF 6:00 PM - 7:00 PM)", attendance_date: TODAY, status: "Present", note: "" },
+    { id: "ATT-103", student_id: "KS-2026-003", student_name: "Rohan Mehta", phone: "9999900003", batch: "Urban Hip-Hop & Popping (TTS 7:00 PM - 8:30 PM)", attendance_date: TODAY, status: "Present", note: "" },
+    { id: "ATT-104", student_id: "KS-2026-004", student_name: "Ananya Verma", phone: "9999900004", batch: "Contemporary & Movement (Sat/Sun 4:00 PM - 5:30 PM)", attendance_date: TODAY, status: "Present", note: "" },
+    { id: "ATT-105", student_id: "KS-2026-005", student_name: "Kabir Joshi", phone: "9999900005", batch: "Urban Hip-Hop & Popping (TTS 7:00 PM - 8:30 PM)", attendance_date: TODAY, status: "Present", note: "" },
+    { id: "ATT-106", student_id: "KS-2026-006", student_name: "Priya Singh", phone: "9999900006", batch: "Kathak Classical (Weekend 10:00 AM - 11:30 AM)", attendance_date: TODAY, status: "Absent", note: "Viral Fever (Informed studio)" },
+    { id: "ATT-107", student_id: "KS-2026-007", student_name: "Vikram Malhotra", phone: "9999900007", batch: "Morning Zumba & Dance Fitness (Mon-Fri 7:00 AM - 8:00 AM)", attendance_date: TODAY, status: "Present", note: "" },
+    { id: "ATT-108", student_id: "KS-2026-008", student_name: "Neha Kulkarni", phone: "9999900008", batch: "Bollywood Commercial (MWF 6:00 PM - 7:00 PM)", attendance_date: TODAY, status: "Present", note: "" },
+    { id: "ATT-109", student_id: "KS-2026-009", student_name: "Siddharth Rao", phone: "9999900009", batch: "Kids Dance Foundations (MWF 5:00 PM - 6:00 PM)", attendance_date: TODAY, status: "Present", note: "" },
+    { id: "ATT-110", student_id: "KS-2026-010", student_name: "Tanvi Deshmukh", phone: "9999900010", batch: "Contemporary & Movement (Sat/Sun 4:00 PM - 5:30 PM)", attendance_date: TODAY, status: "Leave", note: "Approved Leave - Family Function" }
+  ];
+
+  function getTable(table) {
+    const key = 'ks_demo_db_' + table;
+    if (!localStorage.getItem(key)) {
+      const oldVal = localStorage.getItem('tn_demo_db_' + table);
+      if (oldVal) {
+        localStorage.setItem(key, oldVal);
+      }
+    }
+    const raw = localStorage.getItem(key);
+    if (!raw) {
+      if (table === 'students') {
+        localStorage.setItem(key, JSON.stringify(INITIAL_STUDENTS));
+        return JSON.parse(JSON.stringify(INITIAL_STUDENTS));
+      }
+      if (table === 'payments') {
+        localStorage.setItem(key, JSON.stringify(INITIAL_PAYMENTS));
+        return JSON.parse(JSON.stringify(INITIAL_PAYMENTS));
+      }
+      if (table === 'attendance') {
+        localStorage.setItem(key, JSON.stringify(INITIAL_ATTENDANCE));
+        return JSON.parse(JSON.stringify(INITIAL_ATTENDANCE));
+      }
+      return [];
+    }
+    try {
+      const parsed = JSON.parse(raw);
+      // Auto-migrate if older TN- prefix or legacy schema detected
+      if (table === 'students' && parsed && parsed.length > 0) {
+        let changed = false;
+        parsed.forEach(function(s) {
+          if (s.id && s.id.startsWith('TN-')) { s.id = s.id.replace(/^TN-/, 'KS-'); changed = true; }
+          if (s.payment_id && s.payment_id.startsWith('PAY-TN-')) { s.payment_id = s.payment_id.replace(/^PAY-TN-/, 'PAY-KS-'); changed = true; }
+        });
+        if (changed) {
+          localStorage.setItem(key, JSON.stringify(parsed));
+          localStorage.setItem('tn_demo_db_' + table, JSON.stringify(parsed));
+        }
+      }
+      if (table === 'payments' && parsed && parsed.length > 0) {
+        let changed = false;
+        parsed.forEach(function(p) {
+          if (p.id && p.id.startsWith('PAY-TN-')) { p.id = p.id.replace(/^PAY-TN-/, 'PAY-KS-'); changed = true; }
+          if (p.student_id && p.student_id.startsWith('TN-')) { p.student_id = p.student_id.replace(/^TN-/, 'KS-'); changed = true; }
+        });
+        if (changed) {
+          localStorage.setItem(key, JSON.stringify(parsed));
+          localStorage.setItem('tn_demo_db_' + table, JSON.stringify(parsed));
+        }
+      }
+      if (table === 'attendance' && parsed && parsed.length > 0) {
+        let changed = false;
+        parsed.forEach(function(a) {
+          if (a.student_id && a.student_id.startsWith('TN-')) { a.student_id = a.student_id.replace(/^TN-/, 'KS-'); changed = true; }
+        });
+        if (changed) {
+          localStorage.setItem(key, JSON.stringify(parsed));
+          localStorage.setItem('tn_demo_db_' + table, JSON.stringify(parsed));
+        }
+      }
+      if (table === 'students' && parsed && parsed.length > 0 && !parsed[0].phone.startsWith('999990')) {
+        localStorage.setItem(key, JSON.stringify(INITIAL_STUDENTS));
+        return JSON.parse(JSON.stringify(INITIAL_STUDENTS));
+      }
+      if (table === 'students' && (!parsed || parsed.length === 0)) {
+        localStorage.setItem(key, JSON.stringify(INITIAL_STUDENTS));
+        return JSON.parse(JSON.stringify(INITIAL_STUDENTS));
+      }
+      return parsed || [];
+    } catch (e) {
+      return [];
+    }
+  }
+
+  function setTable(table, data) {
+    localStorage.setItem('ks_demo_db_' + table, JSON.stringify(data));
+    localStorage.setItem('tn_demo_db_' + table, JSON.stringify(data)); // legacy fallback
+    syncTableToServer(table, data);
+    try {
+      if (typeof BroadcastChannel !== 'undefined') {
+        const bc = new BroadcastChannel('kalashakti_db_sync');
+        bc.postMessage({ table: table, timestamp: Date.now() });
+      }
+    } catch(e){}
+  }
+
+  function getApiBase() {
+    if (typeof window !== 'undefined' && window.KALASHAKTI_API_URL) return window.KALASHAKTI_API_URL;
+    if (typeof window !== 'undefined' && window.BACKEND_URL) return window.BACKEND_URL;
+    if (typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) {
+      return (window.location.port === '3000' || window.location.port === '3001') ? '' : 'http://localhost:3000';
+    }
+    return '';
+  }
+
+  function syncTableToServer(table, data) {
+    const base = getApiBase();
+    if (!base && typeof window !== 'undefined' && window.location.hostname.includes('.web.app')) {
+      return;
+    }
+    const url = (base || '') + '/api/sync/' + encodeURIComponent(table);
+    try {
+      fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ data: data })
+      }).then(function(r){ return r.json(); }).then(function(res){
+        // Synced successfully to central server
+      }).catch(function(){});
+    } catch(e){}
+  }
+
+  async function syncFromServer(table) {
+    const base = getApiBase();
+    if (!base && typeof window !== 'undefined' && window.location.hostname.includes('.web.app')) {
+      return null;
+    }
+    const url = (base || '') + (table ? ('/api/sync/' + encodeURIComponent(table)) : '/api/sync/all');
+    try {
+      const res = await fetch(url);
+      if (!res.ok) return null;
+      const json = await res.json();
+      if (json && json.success) {
+        if (table && json.data) {
+          const key = 'ks_demo_db_' + table;
+          localStorage.setItem(key, JSON.stringify(json.data));
+          localStorage.setItem('tn_demo_db_' + table, JSON.stringify(json.data));
+          return json.data;
+        } else if (json.tables) {
+          for (const [t, d] of Object.entries(json.tables)) {
+            if (d && Array.isArray(d) && d.length > 0) {
+              const k = 'ks_demo_db_' + t;
+              localStorage.setItem(k, JSON.stringify(d));
+              localStorage.setItem('tn_demo_db_' + t, JSON.stringify(d));
+            }
+          }
+          return json.tables;
+        }
+      }
+    } catch(e){}
+    return null;
+  }
+
+  function createKalashaktiClient() {
+    return {
+      from: function(table) {
+        return {
+          select: function(cols) {
+            let rows = getTable(table);
+            let filters = [];
+            let sortField = null;
+            let sortAsc = true;
+            let limitCount = null;
+
+            const queryObj = {
+              order: function(col, opt) {
+                sortField = col;
+                sortAsc = opt ? (opt.ascending !== false) : true;
+                return queryObj;
+              },
+              eq: function(field, val) {
+                filters.push(function(r) {
+                  return String(r[field] || '') === String(val || '');
+                });
+                return queryObj;
+              },
+              limit: function(n) {
+                limitCount = n;
+                return queryObj;
+              },
+              maybeSingle: async function() {
+                let res = rows.filter(function(r) { return filters.every(function(f) { return f(r); }); });
+                return { data: res[0] || null, error: null };
+              },
+              single: async function() {
+                let res = rows.filter(function(r) { return filters.every(function(f) { return f(r); }); });
+                return { data: res[0] || null, error: null };
+              },
+              then: function(resolve) {
+                let res = rows.filter(function(r) { return filters.every(function(f) { return f(r); }); });
+                if (sortField) {
+                  res.sort(function(a, b) {
+                    let va = a[sortField] || '';
+                    let vb = b[sortField] || '';
+                    return sortAsc ? (va > vb ? 1 : -1) : (va < vb ? 1 : -1);
+                  });
+                }
+                if (limitCount != null) res = res.slice(0, limitCount);
+                resolve({ data: res, error: null });
+              }
+            };
+            return queryObj;
+          },
+          insert: function(records) {
+            let rows = getTable(table);
+            let inserted = (records || []).map(function(r) {
+              return Object.assign({
+                id: r.id || ('KS-' + Math.floor(1000 + Math.random() * 9000)),
+                created_at: r.created_at || new Date().toISOString()
+              }, r);
+            });
+            rows = inserted.concat(rows);
+            setTable(table, rows);
+            const chain = {
+              select: function() { return Promise.resolve({ data: inserted, error: null }); },
+              then: function(resolve) { resolve({ data: inserted, error: null }); }
+            };
+            return chain;
+          },
+          update: function(updates) {
+            let filters = [];
+            const updateObj = {
+              eq: function(field, val) {
+                filters.push(function(r) { return String(r[field] || '') === String(val || ''); });
+                return updateObj;
+              },
+              then: function(resolve) {
+                let rows = getTable(table);
+                let updated = [];
+                rows = rows.map(function(r) {
+                  if (filters.every(function(f) { return f(r); })) {
+                    let nr = Object.assign({}, r, updates);
+                    updated.push(nr);
+                    return nr;
+                  }
+                  return r;
+                });
+                setTable(table, rows);
+                resolve({ data: updated, error: null });
+              }
+            };
+            return updateObj;
+          },
+          delete: function() {
+            let filters = [];
+            const delObj = {
+              eq: function(field, val) {
+                filters.push(function(r) { return String(r[field] || '') === String(val || ''); });
+                return delObj;
+              },
+              then: function(resolve) {
+                let rows = getTable(table);
+                rows = rows.filter(function(r) { return !filters.every(function(f) { return f(r); }); });
+                setTable(table, rows);
+                resolve({ data: null, error: null });
+              }
+            };
+            return delObj;
+          }
+        };
+      },
+      channel: function() {
+        return {
+          on: function() { return this; },
+          subscribe: function() { return this; }
+        };
+      }
+    };
+  }
+
+  window.createKalashaktiClient = createKalashaktiClient;
+  window.createNartanClient = createKalashaktiClient; // backwards compatibility alias
+  window.KalashaktiDB = {
+    createClient: createKalashaktiClient,
+    getTable: getTable,
+    setTable: setTable,
+    syncFromServer: syncFromServer
+  };
+
+  // Intercept window.supabase globally to guarantee zero external calls
+  function interceptSupabase() {
+    if (!window.supabase) window.supabase = {};
+    window.supabase.createClient = function(url, key) {
+      console.log('[Kalashakti Group of Academies] Isolated database active — zero external database calls.');
+      return createKalashaktiClient();
+    };
+  }
+
+  // Attempt initial background sync from central server if available
+  if (typeof window !== 'undefined') {
+    syncFromServer();
+  }
+
+  interceptSupabase();
+  window.addEventListener('DOMContentLoaded', interceptSupabase);
+})();
