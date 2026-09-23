@@ -356,35 +356,26 @@
   function getApiBase() {
     if (typeof window !== 'undefined' && window.KALASHAKTI_API_URL) return window.KALASHAKTI_API_URL;
     if (typeof window !== 'undefined' && window.BACKEND_URL) return window.BACKEND_URL;
-    if (typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) {
-      return (window.location.port === '3000' || window.location.port === '3001') ? '' : 'http://localhost:3000';
-    }
-    return '';
+    return 'https://kalashakti-backend.onrender.com';
   }
 
   function syncTableToServer(table, data) {
     const base = getApiBase();
-    if (!base && typeof window !== 'undefined' && window.location.hostname.includes('.web.app')) {
-      return;
-    }
-    const url = (base || '') + '/api/sync/' + encodeURIComponent(table);
+    if (!base) return;
+    const url = base + '/api/sync/' + encodeURIComponent(table);
     try {
       fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ data: data })
-      }).then(function(r){ return r.json(); }).then(function(res){
-        // Synced successfully to central server
       }).catch(function(){});
     } catch(e){}
   }
 
   async function syncFromServer(table) {
     const base = getApiBase();
-    if (!base && typeof window !== 'undefined' && window.location.hostname.includes('.web.app')) {
-      return null;
-    }
-    const url = (base || '') + (table ? ('/api/sync/' + encodeURIComponent(table)) : '/api/sync/all');
+    if (!base) return null;
+    const url = base + (table ? ('/api/sync/' + encodeURIComponent(table)) : '/api/sync/all');
     try {
       const res = await fetch(url);
       if (!res.ok) return null;
@@ -393,14 +384,12 @@
         if (table && json.data) {
           const key = 'ks_demo_db_' + table;
           localStorage.setItem(key, JSON.stringify(json.data));
-          localStorage.setItem('tn_demo_db_' + table, JSON.stringify(json.data));
           return json.data;
         } else if (json.tables) {
           for (const [t, d] of Object.entries(json.tables)) {
             if (d && Array.isArray(d) && d.length > 0) {
               const k = 'ks_demo_db_' + t;
               localStorage.setItem(k, JSON.stringify(d));
-              localStorage.setItem('tn_demo_db_' + t, JSON.stringify(d));
             }
           }
           return json.tables;

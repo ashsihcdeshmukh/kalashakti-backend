@@ -862,7 +862,10 @@
     }
 
     async function loadAll(){
-      document.getElementById('lastUpdated').textContent = 'Loading...';
+      document.getElementById('lastUpdated').textContent = 'Syncing cloud data...';
+      if (window.KalashaktiDB && window.KalashaktiDB.syncFromServer) {
+        try { await window.KalashaktiDB.syncFromServer(); } catch(e){}
+      }
       const ok = await testConnection();
       if(!ok){renderAll();return}
       try{
@@ -3689,6 +3692,18 @@ async function markAllAttendance(status){
       document.getElementById('attendanceDate').value = todayText();
       loadAll();
       setupRealtime();
+      // Auto-poll cloud backend every 10 seconds for instant sync from mobile devices
+      setInterval(function(){
+        if (!document.hidden) {
+          loadAll();
+        }
+      }, 10000);
+      try {
+        if (typeof BroadcastChannel !== 'undefined') {
+          const bc = new BroadcastChannel('kalashakti_db_sync');
+          bc.onmessage = function() { loadAll(); };
+        }
+      } catch(e){}
     });
   </script>
 
